@@ -5,11 +5,11 @@ module lattice_KMC
    integer                               :: Ns, c, empty, occupied
    integer,  allocatable, dimension(:)   :: reaction_effect
    integer,  allocatable, dimension(:,:) :: lattice, coords, neighbours
-   real*8,   allocatable, dimension(:)   :: reaction_const, times
+   real*8,   allocatable, dimension(:)   :: reaction_const
    real*8,   allocatable, dimension(:,:) :: propensities
    integer*8,allocatable, dimension(:)   :: h
    real*8                                :: ads_const  = 1., des_const= 1.
-   real*8                                :: diff_const = 20.
+   real*8                                :: diff_const = 0.01
 
 contains
    subroutine init(queue_struct,n,percentage, p_val)
@@ -24,7 +24,6 @@ contains
       allocate(coords(Ns,2))
       allocate(neighbours(Ns,4))
       allocate(propensities(Ns,6))
-      allocate(times(6*Ns))            ! will store ALL reaction times
       
       call queue_struct%initialize(6*Ns, p_val)
       call find_coords(n)
@@ -32,7 +31,6 @@ contains
       call randomize_coverage(percentage)
 
       call insert_events_to_skiplist(queue_struct) ! passes necessary info to skiplist
-!~       print*, times, char(10), (propensities(i,:), i=1,Ns), char(10)
 !~       call queue_struct % print_list_values()
    end
 
@@ -80,7 +78,7 @@ contains
       ! update queuing structure (tree or heap) according to NEW positions/propensities
 
       call update_skiplist(queue_struct, site_or, site_des, t_kmc)
-!~       print*, char(10), char(10), times, char(10), (propensities(i,:), i=1,Ns), char(10)
+
    end
 
 !=======================================================================
@@ -98,7 +96,6 @@ contains
          call random_number(rand_nums)
          do j=1,6
             t = -LOG(rand_nums(j)) / propensities(i,j)
-!~             times( label(i,j) ) = t
 !~             if ( t > huge(0.0_8) ) cycle ! only non-INFINITY times are inserted in the Skip_List
             call queue_struct % insert(t, label(i,j) )
          enddo
@@ -118,20 +115,18 @@ contains
          do i=1,4
             t_new1 = t_kmc - LOG(rand_nums(-1,i)) / propensities(site_or, i)
             call queue_struct % update(label(site_or ,i), t_new1)
-!~             print*, times(label(site_or ,i)), t_new1, "origin time, old, new"
-            times(label(site_or ,i)) = t_new1
+
             j=mir(i)
             n_or  = neighbours(site_or , i)
             t_new1 = t_kmc - LOG(rand_nums(2*j-1,j)) / propensities(n_or ,j)
             call queue_struct % update( label(n_or ,j), t_new1)
-!~             print*, times(label(n_or , j)), t_new1, "Nei_or time, old, new"
-            times(label(n_or ,j)) = t_new1
+
          enddo
          do i=5,6 ! update AD & DES propensities of origin and destination sites
             j = i-4 ! j=1,2
             t_new1 = t_kmc - LOG(rand_nums(9, 2*j-1)) / propensities(site_or, i) ! rands = (9,1) (9,3)
             call queue_struct % update(label(site_or ,i), t_new1)
-            times(label(site_or ,i)) = t_new1
+
          enddo
       else
          do i=1,4 ! update origin & destination DIFFUSION propensities
@@ -140,11 +135,6 @@ contains
             ! update(current_value, label, updated_value)
             call queue_struct % update( label(site_or ,i), t_new1)
             call queue_struct % update( label(site_des,i), t_new2)
-!~        print*, times(label(site_or ,i)), t_new1, "origin time, old, new"
-!~        print*, times(label(site_des,i)), t_new2, "destin time, old, new"
-            ! times_array will store the value even if it is +inf
-            times(label(site_or ,i)) = t_new1
-            times(label(site_des,i)) = t_new2
 
             j=mir(i)
    !~          do j=1,4 ! update NEIGHBOURS of origin & destination sites
@@ -154,10 +144,7 @@ contains
             t_new2 = t_kmc - LOG(rand_nums(2*j  ,j)) / propensities(n_des,j) 
             call queue_struct % update( label(n_or ,j), t_new1)
             call queue_struct % update( label(n_des,j), t_new2)
-!~        print*, times(label(n_or ,i)), t_new1, "N_or  time, old, new"
-!~        print*, times(label(n_des,i)), t_new2, "N_des time, old, new"
-            times(label(n_or ,j)) = t_new1
-            times(label(n_des,j)) = t_new2
+
    !~          enddo
          enddo
          do i=5,6 ! update AD & DES propensities of origin and destination sites
@@ -167,9 +154,7 @@ contains
    
             call queue_struct % update( label(site_or ,i), t_new1)
             call queue_struct % update( label(site_des,i), t_new2)
-   
-            times(label(site_or ,i)) = t_new1
-            times(label(site_des,i)) = t_new2
+
          enddo
       endif
    end

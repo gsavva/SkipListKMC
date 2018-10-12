@@ -8,7 +8,7 @@ program on_lattice_MAIN
    character(len=20) :: write_file
    real*8    :: t_kmc, t1, t2, cov, ts, tf, p
    integer   :: i, j, iters, reaction_occured, Ldim, seed(33)=101
-   call random_seed(PUT=seed)
+!~    call random_seed(PUT=seed)
 !~    call cpu_time(ts) !-----------------global start time----------------
 
    write_file= 'lattice.txt'
@@ -28,7 +28,7 @@ program on_lattice_MAIN
    do j=1, Ldim
       write(88,*) lattice(j,:)
    enddo
-   open(unit=55,file='statistics')
+!~    open(unit=55,file='statistics')
    call cpu_time(ts)
    do i=1, iters
 !~       print*,"**************************************************** NEW ITERATION ABOUT TO BEGIN &
@@ -36,7 +36,7 @@ program on_lattice_MAIN
       call queue_struct % get_first(reaction_occured, t_kmc)
 
 !~       call queue_struct % print_list_values()
-!~       write(55,*) reaction_occured, t_kmc
+!~       write(55,*) reaction_occured, t_kmc, queue_struct % nsize
 !~       call queue_struct % print_list_values()
 !~       if (mod(i,1000) == 0) then
 !~           print*,i, reaction_occured, t_kmc
@@ -56,9 +56,8 @@ program on_lattice_MAIN
 !~        endif
 
    enddo
-!~    print*, queue_struct % st(:)
+   print*, queue_struct % st(:)
    call cpu_time(tf) !-----------------global finish time---------------
-   write(55,*) Ldim*Ldim, size(queue_struct % head % forward_nodes)
    open(unit=77,file='stats',position='append')
    write(77,*) Ldim*Ldim, iters, tf-ts
    print*,"Total time: ",tf-ts, " seconds"

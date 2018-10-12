@@ -15,6 +15,7 @@ module skipList_module
       integer :: maxlevels
       integer :: current_list_level
       real*8  :: p_val
+      integer :: st(4)=(/0,0,0,0/) ! stats array
    contains
       procedure :: initialize => skiplist_initialize
       procedure :: insert => skiplist_insert_element
@@ -22,6 +23,7 @@ module skipList_module
       procedure :: search => skiplist_search_element
       procedure :: update => skiplist_update_element
       procedure :: get_first => skiplist_get_highest_priority_element
+      procedure :: relabel
       
       procedure :: printAll
       procedure :: print_list_values
@@ -89,7 +91,7 @@ contains
       this % mapArr(label)%p => new_node
    end
 
-   subroutine skiplist_remove_element(this, label_to_remove)
+   subroutine skiplist_remove_element(this, label_to_remove) ! --> remove_without_relabel
       implicit none
       class(SkipList_Type) :: this
       type(node), pointer :: x
@@ -133,21 +135,29 @@ contains
       class(SkipList_Type) :: this
       real*8   :: updated_value
       integer  :: label
-      
-      if( updated_value > huge(0.0_8) .AND. .NOT. ASSOCIATED(this % mapArr(label)%p) ) return
 
-      if( updated_value > huge(0.0_8) .AND.       ASSOCIATED(this % mapArr(label)%p) ) then
-         call this % remove(label)
+      this%st(4) = this%st(4) + 1
+      if( .NOT. ASSOCIATED(this % mapArr(label)%p) ) then
+         print*, "ERROR FOUND"
          return
       endif
-      ! if updated_value < +infinity
-      if ( .NOT. ASSOCIATED(this % mapArr(label)%p) ) then
-         call this % insert(updated_value, label)
-      else ! if mapArr(label)%p IS associated
-         call this % remove(label)
-         call this % insert(updated_value, label)
+
+      if( updated_value > huge(0.0_8) ) then
+         if ( this % mapArr(label)%p % node_val > huge(0.0_8) ) then
+            this%st(1) = this%st(1) + 1
+            return
+         else
+            this%st(2) = this%st(2) + 1
+            call this % remove(label)
+            call this % insert(updated_value, label)
+            return
+         endif
       endif
 
+      ! if updated_value < +infinity
+      this%st(3) = this%st(3) + 1
+      call this % remove(label)
+      call this % insert(updated_value, label)
    end
 
    subroutine skiplist_get_highest_priority_element(this,event_id, event_t)
@@ -158,6 +168,13 @@ contains
 
       event_id = this % head % forward_nodes(1)%p % node_id
       event_t  = this % head % forward_nodes(1)%p % node_val
+   end
+
+   subroutine relabel(this, label)
+      implicit none
+      class(skipList_Type) :: this
+      integer :: label
+      ! procedure to be written
    end
 
    subroutine printAll(this)
