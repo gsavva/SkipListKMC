@@ -16,7 +16,8 @@ contains
       implicit none
       class(SkipList_Type) ::  queue_struct
       integer :: n!, i
-      real*8  :: percentage, p_val
+      real*8  :: percentage
+      real*8, optional :: p_val
 
       Ns = n*n ! total number of sites
 
@@ -25,7 +26,10 @@ contains
       allocate(neighbours(Ns,4))
       allocate(propensities(Ns,6))
       
-      call queue_struct%initialize(6*Ns, p_val)
+      if (present(p_val)) call queue_struct % set_parameters(p_val)
+      ! else, the default value for p will be used
+
+      call queue_struct%initialize(6*Ns)
       call find_coords(n)
       call find_neighbours(n)
       call randomize_coverage(percentage)

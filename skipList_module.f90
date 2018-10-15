@@ -14,17 +14,18 @@ module skipList_module
       integer :: nsize
       integer :: maxlevels
       integer :: current_list_level
-      real*8  :: p_val
+      real*8  :: p_val = 0.50
       integer :: st(4)=(/0,0,0,0/) ! stats array
    contains
       procedure :: initialize => skiplist_initialize
       procedure :: insert => skiplist_insert_element
-      procedure :: remove => skiplist_remove_element
+      procedure :: remove => skiplist_remove_element_without_relabel
       procedure :: search => skiplist_search_element
       procedure :: update => skiplist_update_element
       procedure :: get_first => skiplist_get_highest_priority_element
-      procedure :: relabel
+      procedure :: relabel => skiplist_relabel
       
+      procedure :: set_parameters
       procedure :: printAll
       procedure :: print_list_values
       procedure :: deleteList
@@ -33,12 +34,10 @@ module skipList_module
 
 contains
 
-   subroutine skiplist_initialize(this, n0, prop_val)
+   subroutine skiplist_initialize(this, n0)
       implicit none
       class(SkipList_Type) :: this
-      real *8 :: prop_val
       integer :: n0, i
-      this % p_val = prop_val
       this % nsize = 0
       this % current_list_level = 1
       this % maxlevels = int( log(n0*1.) / log(1./this%p_val) ) + 1
@@ -91,13 +90,11 @@ contains
       this % mapArr(label)%p => new_node
    end
 
-   subroutine skiplist_remove_element(this, label_to_remove) ! --> remove_without_relabel
+   subroutine skiplist_remove_element_without_relabel(this, label_to_remove)
       implicit none
       class(SkipList_Type) :: this
       type(node), pointer :: x
       integer  :: label_to_remove, i
-      
-      this % nsize = this % nsize - 1
 
       x => this % mapArr(label_to_remove)%p ! direct access to the element of interest
       do i = 1, size( x % forward_nodes )
@@ -107,9 +104,20 @@ contains
       deallocate(x)
       this % mapArr(label_to_remove)%p => null()
 
+      this % nsize = this % nsize - 1
    end
 
-   subroutine skiplist_search_element(this, element_to_search)
+   subroutine skiplist_remove_element(this, label)
+      implicit none
+      class(SkipList_Type) :: this
+      integer :: label
+      
+      call this % remove(label)
+      call this % relabel(label)
+      
+   end
+
+   subroutine skiplist_search_element(this, element_to_search) ! not currently used
       implicit none
       class(SkipList_Type) :: this
       type(node), pointer :: x
@@ -170,11 +178,22 @@ contains
       event_t  = this % head % forward_nodes(1)%p % node_val
    end
 
-   subroutine relabel(this, label)
+   subroutine skiplist_relabel(this, label_to_replace)
       implicit none
       class(skipList_Type) :: this
-      integer :: label
-      ! procedure to be written
+      integer :: label_to_replace
+
+      
+
+   end
+
+   subroutine set_parameters(this, p_value)
+      implicit none
+      class(SkipList_Type) :: this
+      real*8 :: p_value
+      
+      this % p_val = p_value
+      
    end
 
    subroutine printAll(this)
