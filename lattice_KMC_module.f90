@@ -36,7 +36,7 @@ contains
 
       call insert_events_to_skiplist(queue_struct) ! passes necessary info to skiplist
 !~       call queue_struct % print_list_values()
-   end
+   end subroutine
 
    subroutine execute_reaction(queue_struct,reaction_occured,t_kmc)
       implicit none
@@ -83,7 +83,7 @@ contains
 
       call update_skiplist(queue_struct, site_or, site_des, t_kmc)
 
-   end
+   end subroutine
 
 !=======================================================================
 !----------------------- Internally Used Subroutines -------------------
@@ -104,7 +104,7 @@ contains
             call queue_struct % insert(t, label(i,j) )
          enddo
       enddo
-   end
+   end subroutine
 
    subroutine update_skiplist(queue_struct, site_or, site_des, t_kmc)
       implicit none
@@ -161,7 +161,7 @@ contains
 
          enddo
       endif
-   end
+   end subroutine
 
 !------------------Subroutines to handle lattice-private data structures
 
@@ -185,7 +185,7 @@ contains
          endif
 !~          print*,neighbour,lattice(row,col),mir(i),propensities(site_of_interest,i),propensities(neighbour,mir(i))
       enddo
-   end
+   end subroutine
 
    subroutine enable_diffusions(site_of_interest)
       implicit none
@@ -199,7 +199,7 @@ contains
             propensities(neighbour,mir(i)) = diff_const
          endif
       enddo
-   end
+   end subroutine
 
    subroutine find_neighbours(n)
       implicit none
@@ -234,7 +234,7 @@ contains
       do i=1, n
          neighbours(i,4) = Ns - n + i
       enddo
-   end
+   end subroutine
 
    subroutine find_coords(n)
       implicit none
@@ -243,13 +243,13 @@ contains
          coords(i,1) = mod( i-1,n)  + 1 ! row of i-lattice site
          coords(i,2) = int((i-1)/n) + 1 ! col of i-lattice site
       enddo      
-   end
+   end subroutine
    
    integer function label(l_site, r_type)
       implicit none
       integer, intent(in) :: l_site, r_type
       label = (l_site-1)*6 + r_type
-   end
+   end function
 
    subroutine randomize_coverage(covrg)
       implicit none
@@ -279,6 +279,6 @@ contains
             propensities(site, 6) = 0.0_8     ! ADsorption is disabled
          enddo
       endif
-   end
+   end subroutine
 
 end module lattice_KMC

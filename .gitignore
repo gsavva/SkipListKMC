@@ -3,6 +3,7 @@
 *.x
 *.m
 *.geany
+.gitattributes
 Debug
 Release
 build
@@ -10,7 +11,8 @@ build
 *.txt
 *.u2d
 *.suo
-*.vfproj.*
+*.sln
+*.vfproj
 *.zip
 .*.swp
 TAGS

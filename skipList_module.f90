@@ -54,7 +54,7 @@ contains
          this % tail %backward_nodes(i)%p => this % head
          this % updt(i)%p => null()
       enddo
-   end
+   end subroutine
 
    subroutine skiplist_insert_element(this, element_to_insert, label)
       implicit none
@@ -88,7 +88,7 @@ contains
          new_node % forward_nodes(i)%p % backward_nodes(i)%p => new_node
       enddo
       this % mapArr(label)%p => new_node
-   end
+   end subroutine
 
    subroutine skiplist_remove_element_without_relabel(this, label_to_remove)
       implicit none
@@ -105,7 +105,7 @@ contains
       this % mapArr(label_to_remove)%p => null()
 
       this % nsize = this % nsize - 1
-   end
+   end subroutine
 
    subroutine skiplist_remove_element(this, label)
       implicit none
@@ -115,7 +115,7 @@ contains
       call this % remove(label)
       call this % relabel(label)
       
-   end
+   end subroutine
 
    subroutine skiplist_search_element(this, element_to_search) ! not currently used
       implicit none
@@ -136,7 +136,7 @@ contains
       else
          write(*,*) "number: ", element_to_search, " NOT found"
       endif
-   end
+   end subroutine
 
    subroutine skiplist_update_element(this, label, updated_value)
       implicit none
@@ -166,7 +166,7 @@ contains
       this%st(3) = this%st(3) + 1
       call this % remove(label)
       call this % insert(updated_value, label)
-   end
+   end subroutine
 
    subroutine skiplist_get_highest_priority_element(this,event_id, event_t)
       implicit none
@@ -176,7 +176,7 @@ contains
 
       event_id = this % head % forward_nodes(1)%p % node_id
       event_t  = this % head % forward_nodes(1)%p % node_val
-   end
+   end subroutine
 
    subroutine skiplist_relabel(this, label_to_replace)
       implicit none
@@ -185,7 +185,7 @@ contains
 
       
 
-   end
+   end subroutine
 
    subroutine set_parameters(this, p_value)
       implicit none
@@ -194,7 +194,7 @@ contains
       
       this % p_val = p_value
       
-   end
+   end subroutine
 
    subroutine printAll(this)
       implicit none
@@ -223,7 +223,7 @@ contains
             print*, this % mapArr(i)%p%node_id, this % mapArr(i)%p%node_val
          endif
       enddo
-   end
+   end subroutine
 
    subroutine print_list_values(this)
       implicit none
@@ -240,7 +240,7 @@ contains
       enddo
       print*, x % node_val, x % node_id, size(x%forward_nodes) ! prints the +inf, the last value on the list.
       print*,"==============================LIST VALUES END======================================="
-   end
+   end subroutine
 
    subroutine deleteList(this)
       implicit none
@@ -255,7 +255,7 @@ contains
       enddo
       deallocate(this % updt)
       deallocate(this % mapArr)
-   end
+   end subroutine
 
 !--------------INTERNAL procedures -------------------------------------
    integer function choose_random_height(this)
@@ -276,6 +276,6 @@ contains
 !~          call random_number(temp)
 !~       enddo
 !~       choose_random_height = min(choose_random_height, this%maxlevels)
-   end
+   end function
 
 end module

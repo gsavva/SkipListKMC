@@ -17,6 +17,7 @@ program on_lattice_MAIN
 !~    Ldim = 5
 !~    iters = 1000
    cov = 0.0
+   p = p/100. ! used to enable batch script run since it does not support decimals
    allocate(queue_struct)
    call init(queue_struct,Ldim,cov, p)
 
@@ -62,4 +63,4 @@ program on_lattice_MAIN
    write(77,*) Ldim*Ldim, iters, tf-ts
    print*,"Total time: ",tf-ts, " seconds"
 
-end
+end program

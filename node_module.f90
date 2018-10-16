@@ -51,6 +51,6 @@ contains
       allocate( create_new_node % backward_nodes(new_level) )
       create_new_node % node_val = new_value
       create_new_node % node_id  = new_id
-   end
+   end function
 
 end module
