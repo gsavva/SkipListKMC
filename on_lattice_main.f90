@@ -12,7 +12,7 @@ program on_lattice_MAIN
 !~    call cpu_time(ts) !-----------------global start time----------------
 
    write_file= 'lattice.txt'
-!~    write(*,*) 'Give lattice Dimension, # of iterations:' !, coverage:'
+!   write(*,*) 'Give lattice Dimension, # of iterations, p_value*100:' !, coverage:'
    read*, Ldim, iters, p!, cov
 !~    Ldim = 5
 !~    iters = 1000
@@ -58,9 +58,12 @@ program on_lattice_MAIN
 
    enddo
    print*, queue_struct % st(:)
+   print*, "max Levels     :", queue_struct % maxlevels
+   print*, "Head -> tail comparisons: ", queue_struct % cinf, queue_struct%cinf *100./ (queue_struct%cinf + queue_struct%cNinf),"%" 
+!   print*, "All other    comparisons: ", queue_struct %cNinf, queue_struct%cNinf*100./ (queue_struct%cinf + queue_struct%cNinf),"%"
    call cpu_time(tf) !-----------------global finish time---------------
-   open(unit=77,file='stats',position='append')
-   write(77,*) Ldim*Ldim, iters, tf-ts
+   open(unit=77,file='stats.txt',position='append')
+   write(77,*) Ldim*Ldim, iters, tf-ts, queue_struct%cinf*100./(queue_struct%cinf+queue_struct%cNinf)
    print*,"Total time: ",tf-ts, " seconds"
 
 end program

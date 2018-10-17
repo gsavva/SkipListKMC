@@ -11,7 +11,7 @@ module skipList_module
       type(container), allocatable :: updt(:) ! array of pointers, pointing to nodes
       type(container), allocatable :: mapArr(:)
 
-      integer :: nsize
+      integer :: nsize, cinf=0, cNinf=0
       integer :: maxlevels
       integer :: current_list_level
       real*8  :: p_val = 0.50
@@ -67,9 +67,18 @@ contains
 
       x => this % head
       do i = this % maxlevels, 1, -1
+
+         if( ASSOCIATED(x,target=this%head) .AND. ASSOCIATED(x%forward_nodes(i)%p,target=this%tail )) then
+            this % cinf = this % cinf + 1
+            this % updt(i)%p => x
+            cycle
+         endif
+
          do while(x % forward_nodes(i)%p % node_val < element_to_insert)
             x =>  x % forward_nodes(i)%p
+            this % cNinf = this % cNinf + 1
          enddo
+         this % cNinf = this % cNinf + 1
          this % updt(i)%p => x
       enddo
 
