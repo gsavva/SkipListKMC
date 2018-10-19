@@ -19,10 +19,12 @@ module skipList_module
    contains
       procedure :: initialize => skiplist_initialize
       procedure :: insert => skiplist_insert_element
-      procedure :: remove => skiplist_remove_element_without_relabel
+      procedure :: remove => skiplist_remove_element
+      procedure :: remove_without_relabel => skiplist_remove_element_without_relabel
       procedure :: search => skiplist_search_element
       procedure :: update => skiplist_update_element
-      procedure :: get_first => skiplist_get_highest_priority_element
+      procedure :: key_value_of => skiplist_get_key_value_of_element
+      procedure :: highest_priority_label => skiplist_get_label_of_highest_priority_element
       procedure :: relabel => skiplist_relabel
       
       procedure :: set_parameters
@@ -59,8 +61,9 @@ contains
    subroutine skiplist_insert_element(this, element_to_insert, label)
       implicit none
       class(SkipList_Type) :: this
+      real(8), intent(in) :: element_to_insert
+
       type (node), pointer :: new_node, x
-      real*8  :: element_to_insert
       integer :: height, i, label
 
       this % nsize = this % nsize + 1
@@ -112,8 +115,8 @@ contains
       class(SkipList_Type) :: this
       integer :: label
       
-      call this % remove(label)
-      call this % relabel(label)
+      call this % remove_without_relabel(label)
+!      call this % relabel(label, 0) !commented out for my code to run properly
       
    end subroutine
 
@@ -141,8 +144,8 @@ contains
    subroutine skiplist_update_element(this, label, updated_value)
       implicit none
       class(SkipList_Type) :: this
-      real*8   :: updated_value
-      integer  :: label
+      integer, intent(in) :: label
+      real(8), intent(in) :: updated_value
 
       this%st(4) = this%st(4) + 1
       if( .NOT. ASSOCIATED(this % mapArr(label)%p) ) then
@@ -168,22 +171,34 @@ contains
       call this % insert(updated_value, label)
    end subroutine
 
-   subroutine skiplist_get_highest_priority_element(this,event_id, event_t)
+   integer function skiplist_get_label_of_highest_priority_element(this)
       implicit none
       class(skipList_Type) :: this
-      integer :: event_id
-      real*8  :: event_t
 
-      event_id = this % head % forward_nodes(1)%p % node_id
-      event_t  = this % head % forward_nodes(1)%p % node_val
-   end subroutine
+      skiplist_get_label_of_highest_priority_element = this % head % forward_nodes(1)%p % node_id
 
-   subroutine skiplist_relabel(this, label_to_replace)
+   end function
+
+   real(8) function skiplist_get_key_value_of_element(this,req_element_label)
       implicit none
       class(skipList_Type) :: this
-      integer :: label_to_replace
+      integer, intent(in) ::  req_element_label
 
-      
+      skiplist_get_key_value_of_element = this % mapArr(req_element_label)%p % node_val
+
+   end function
+   
+   subroutine skiplist_relabel(this, current_label, new_label)
+      implicit none
+      class(skipList_Type) :: this
+      integer, intent(in) :: current_label, new_label
+
+      ! relink nodes
+      this % mapArr(current_label) = this % mapArr(this % nsize + 1)
+      this % mapArr(this % nsize + 1)%p => null()
+
+      !change node's label
+      this % mapArr(current_label)%p % node_id = current_label
 
    end subroutine
 
@@ -193,7 +208,7 @@ contains
       real*8 :: p_value
       
       this % p_val = p_value
-      
+
    end subroutine
 
    subroutine printAll(this)

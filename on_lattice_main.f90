@@ -32,13 +32,10 @@ program on_lattice_MAIN
 !~    open(unit=55,file='statistics')
    call cpu_time(ts)
    do i=1, iters
-!~       print*,"**************************************************** NEW ITERATION ABOUT TO BEGIN &
-!~             & ****************************************************"
-      call queue_struct % get_first(reaction_occured, t_kmc)
 
-!~       call queue_struct % print_list_values()
-!~       write(55,*) reaction_occured, t_kmc, queue_struct % nsize
-!~       call queue_struct % print_list_values()
+      reaction_occured = queue_struct % highest_priority_label()
+      t_kmc = queue_struct % key_value_of(reaction_occured)
+
 !~       if (mod(i,1000) == 0) then
 !~           print*,i, reaction_occured, t_kmc
 !~       endif
@@ -59,7 +56,7 @@ program on_lattice_MAIN
    enddo
    print*, queue_struct % st(:)
    call cpu_time(tf) !-----------------global finish time---------------
-   open(unit=77,file='stats',position='append')
+   open(unit=77,file='stats.txt',position='append')
    write(77,*) Ldim*Ldim, iters, tf-ts
    print*,"Total time: ",tf-ts, " seconds"
 
